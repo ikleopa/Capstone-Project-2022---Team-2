@@ -49,5 +49,5 @@ result_sessions = result_sessions.drop(df.filter(regex='_0.0').columns, axis=1)
 
 df1 = pd.get_dummies(df_sample_train_purchases)
 
-# TEST TEST TEST
+# TEST TEST TEST john
 

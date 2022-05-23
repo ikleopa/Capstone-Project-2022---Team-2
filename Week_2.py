@@ -33,6 +33,7 @@ cols.delete(0)
 
 for col in cols:
     pivot_features[col]=pivot_features[col].astype('category')
+   
     
 pivot_features['item_id']=pivot_features.astype('int')  
 
@@ -50,4 +51,4 @@ result_sessions = result_sessions.drop(df.filter(regex='_0.0').columns, axis=1)
 df1 = pd.get_dummies(df_sample_train_purchases)
 
 # TEST TEST TEST john
-
+#test test mary

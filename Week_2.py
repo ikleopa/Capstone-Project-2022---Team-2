@@ -1,8 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun May  8 18:00:20 2022
+
+@author: Group 2
+"""
+
 import pandas as pd
 
+from sklearn.model_selection import train_test_split, cross_val_score
+
+# models
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
-
 
 
 df_item_features = pd.read_csv(r'C:\Users\Iris\Desktop\Deree\Master\CAPSTONE\Recommender System\dressipi_recsys2022\item_features.csv')
@@ -82,4 +91,5 @@ X_test = X_test.to_numpy()
 
 gnb = GaussianNB()
 y_pred = gnb.fit(X_train, Y_train).predict(X_test)
+
 

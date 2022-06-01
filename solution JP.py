@@ -138,7 +138,7 @@ df_item_features_pivot.fillna(0.0, inplace = True) # fill na with zero
 display(df_item_features_pivot)
 
 # PCA is easier to understand than singular value decomposition, so amended here. If you check carefully, there are features (47, 56) that contain 0 for all items, so be careful.
-df_item_features_pca = df_item_features_pivot.apply(lambda x:  (x - x.mean()) / x.std(), axis = 0) )
+df_item_features_pca = df_item_features_pivot.apply(lambda x:  (x - x.mean()) / x.std(), axis = 0) 
 print("============== Αυτά τα χαρακτηριστικά περιέχουν 0 για όλα τα στοιχεία ==============")
 display(df_item_features_pca.loc[:,df_item_features_pca.isnull().any()]) # Ελέγξτε τη θέση των στηλών που είναι 0 για όλα τα στοιχεία
 df_item_features_pca.fillna(0.0, inplace = True) # Οι στήλες που είναι 0 για όλα τα στοιχεία δεν θα τυποποιηθούν και θα εμφανιστεί NaN, επομένως είναι απαραίτητο να συμπληρώσετε ξανά αυτήν τη χρονική στιγμή.

@@ -13,10 +13,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix,accuracy_score
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import LinearSVC
 import lightgbm as lgb   #conda install -c conda-forge lightgbm
+from sklearn.neural_network import MLPClassifier
 
 
 df_item_features = pd.read_csv(r'Dataset_dressipi_recsys2022\item_features.csv')
@@ -68,34 +70,64 @@ final_purchase = final_purchase.rename(columns={'featuresfrompurchases_session_i
 
 
 algorithm_test=final_session_sum.merge(final_purchase, on=["session_id"], how='left')
+algorithm_test_withoutonehotpurchases=final_session_sum.merge(df_train_purchases, on=["session_id"], how='left')
 
+algorithm_test_withoutonehotpurchases= algorithm_test_withoutonehotpurchases.drop(['date'],axis=1)
+algorithm_test_withoutonehotpurchases.set_index('session_id',inplace=True)
+#
+#
+######################################## WIth one hot the purchases ##########
 
-#
-#
-########################################
-#
-#X=algorithm_test.iloc[:,3:]
-#Y=algorithm_test.iloc[:,1]
 X = algorithm_test.filter(regex=('featuresfromsessions_'))
-Y = algorithm_test.filter(regex=('featuresfrompurchases_'))
+Y = algorithm_test.filter(regex=('featuresfrompurchases_')) 
 Y = Y.iloc[:,:72]  #Loo why it looses a columns
-#cols=Y.columns
-#for col in cols:
-#    Y[col]=Y[col].astype('category')
-#X = X.clip(upper=1)
-#
+
 Y=Y.astype('int')  
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-#
+
 
 Y=Y.astype('int')
 dtree = DecisionTreeClassifier()
+drandomtree = RandomForestClassifier()
 dtree = dtree.fit(X_train, Y_train)
+drandomtree = drandomtree.fit(X_train, Y_train)
 #
 #
 Y_pred_dtree = dtree.predict(X_test)   
 ac_dtree=accuracy_score(Y_test,Y_pred_dtree)
+Y_pred_drandomtree = drandomtree.predict(X_test)   
+ac_drandomtree=accuracy_score(Y_test,Y_pred_drandomtree)
+
+mlp = MLPClassifier(hidden_layer_sizes=(8,8,8), activation='relu', solver='adam', max_iter=500)
+mlp.fit(X_train,Y_train)
+Y_pred_mlp = mlp.predict(X_test)   
+ac_mlp=accuracy_score(Y_test,Y_pred_mlp)
+
+
+######################################## Without one hot the purchases ##########
+
+X2 = algorithm_test_withoutonehotpurchases.filter(regex=('featuresfromsessions_'))
+Y2 = algorithm_test_withoutonehotpurchases.item_id
+Y2=Y2/1000
+Y2=Y2.astype('int')  
+Y2=Y2.astype('str') 
+X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.2) 
+
+
+#Y2=Y2.astype('int')
+dtree2 = DecisionTreeClassifier()
+dtree2 = dtree2.fit(X2_train, Y2_train)
+drandomtree2 = RandomForestClassifier()
+drandomtree2 = drandomtree2.fit(X2_train, Y2_train)
+#
+#
+Y2_pred_dtree = dtree2.predict(X2_test)   
+ac_dtree2=accuracy_score(Y2_test,Y2_pred_dtree)
+Y2_pred_drandomtree = drandomtree2.predict(X2_test)   
+ac_drandomtree2=accuracy_score(Y2_test,Y2_pred_drandomtree)
+
+
 #########Linear Support Vector Classification############
 #
 #
@@ -110,6 +142,29 @@ ac_dtree=accuracy_score(Y_test,Y_pred_dtree)
 
 
 
+#from numpy import unique
+#from numpy import where
+#from sklearn.datasets import make_classification
+#from sklearn.cluster import KMeans
+#from matplotlib import pyplot
+## define dataset
+#X, _ = make_classification(n_samples=2, n_features=2, n_informative=2, n_redundant=0, n_clusters_per_class=1, random_state=4)
+## define the model
+#model = KMeans(n_clusters=2)
+## fit the model
+#model.fit(X)
+## assign a cluster to each example
+#yhat = model.predict(X)
+## retrieve unique clusters
+#clusters = unique(yhat)
+## create scatter plot for samples from each cluster
+#for cluster in clusters:
+## get row indexes for samples with this cluster
+#    row_ix = where(yhat == cluster)
+## create scatter of these samples
+#pyplot.scatter(X[row_ix, 0], X[row_ix, 1])
+## show the plot
+#pyplot.show()
 
 
 

@@ -55,7 +55,7 @@ session = df_train_sessions.merge(pivot_features, on=["item_id"], how='inner')
 final_session = session.drop(['item_id'],axis=1)
 final_session = final_session.drop(['date'],axis=1)
 
-final_session_sum=final_session.groupby(['session_id']).sum().reset_index()  
+final_session_count=final_session.groupby(['session_id']).sum().reset_index()  
 
 
 purchase = df_train_purchases.merge(pivot_features, on=["item_id"], how='inner')
@@ -63,14 +63,14 @@ purchase = df_train_purchases.merge(pivot_features, on=["item_id"], how='inner')
 final_purchase = purchase.drop(['item_id'],axis=1)
 final_purchase = final_purchase.drop(['date'],axis=1)
 
-final_session_sum = final_session_sum.add_prefix('featuresfromsessions_')
-final_session_sum = final_session_sum.rename(columns={'featuresfromsessions_session_id': 'session_id'})
+final_session_count = final_session_count.add_prefix('featuresfromsessions_')
+final_session_count = final_session_count.rename(columns={'featuresfromsessions_session_id': 'session_id'})
 final_purchase = final_purchase.add_prefix('featuresfrompurchases_')
 final_purchase = final_purchase.rename(columns={'featuresfrompurchases_session_id': 'session_id'})
 
 
-algorithm_test=final_session_sum.merge(final_purchase, on=["session_id"], how='left')
-algorithm_test_withoutonehotpurchases=final_session_sum.merge(df_train_purchases, on=["session_id"], how='left')
+algorithm_test=final_session_count.merge(final_purchase, on=["session_id"], how='left')
+algorithm_test_withoutonehotpurchases=final_session_count.merge(df_train_purchases, on=["session_id"], how='left')
 
 algorithm_test_withoutonehotpurchases= algorithm_test_withoutonehotpurchases.drop(['date'],axis=1)
 algorithm_test_withoutonehotpurchases.set_index('session_id',inplace=True)
@@ -79,10 +79,14 @@ algorithm_test_withoutonehotpurchases.set_index('session_id',inplace=True)
 ######################################## WIth one hot the purchases ##########
 
 X = algorithm_test.filter(regex=('featuresfromsessions_'))
-Y = algorithm_test.filter(regex=('featuresfrompurchases_')) 
-Y = Y.iloc[:,:72]  #Loo why it looses a columns
 
-Y=Y.astype('int')  
+#Y = algorithm_test.filter(regex=('featuresfrompurchases_')) 
+#Y = Y.iloc[:221,:]  #Loo why it looses a columns
+
+#Y=Y.astype('int')  
+
+df1 = pd.get_dummies(df_train_purchases, columns = ['item_id']) # one hot encoding for the train purchases
+Y= df1.iloc[:221,2:]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
@@ -95,11 +99,11 @@ drandomtree = drandomtree.fit(X_train, Y_train)
 #
 #
 Y_pred_dtree = dtree.predict(X_test)   
-ac_dtree=accuracy_score(Y_test,Y_pred_dtree)
+ac_dtree=accuracy_score(Y_test,Y_pred_dtree) 
 Y_pred_drandomtree = drandomtree.predict(X_test)   
 ac_drandomtree=accuracy_score(Y_test,Y_pred_drandomtree)
 
-mlp = MLPClassifier(hidden_layer_sizes=(8,8,8), activation='relu', solver='adam', max_iter=500)
+mlp = MLPClassifier(hidden_layer_sizes=(72,144,887), activation='relu', solver='adam', max_iter=500)
 mlp.fit(X_train,Y_train)
 Y_pred_mlp = mlp.predict(X_test)   
 ac_mlp=accuracy_score(Y_test,Y_pred_mlp)
@@ -111,7 +115,7 @@ X2 = algorithm_test_withoutonehotpurchases.filter(regex=('featuresfromsessions_'
 Y2 = algorithm_test_withoutonehotpurchases.item_id
 Y2=Y2/1000
 Y2=Y2.astype('int')  
-Y2=Y2.astype('str') 
+#Y2=Y2.astype('str') 
 X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.2) 
 
 

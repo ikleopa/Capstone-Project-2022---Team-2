@@ -1,5 +1,5 @@
 # Capstone-Project-2022---Team-2
-The code for the experiments are included in the following file2:
+The code for the experiments are included in the following files:
 
 •	Experiment 2 - Using Clustering.py
 

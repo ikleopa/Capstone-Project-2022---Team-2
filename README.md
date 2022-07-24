@@ -1,9 +1,9 @@
 # Capstone-Project-2022---Team-2
 The code for the experiments are included in the following files:
 
-•	Experiment 2 - Using Clustering.py
+•	Experiments - Using Clustering.py
 
-•	Experiment 3 - CNN with Word2Vec.py
+•	Experiments - CNN with Word2Vec.py
 
 •	Spark Imlementation.ipynb
 
